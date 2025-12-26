@@ -142,30 +142,37 @@ class OnboardingHandler:
         # Notify user about processing
         await update.callback_query.message.reply_text("Мы обрабатываем ваш результат...")
         
+        # Check if we should skip AI requests
+        skip_personality_requests = os.getenv("SKIP_PERSONALITY_REQUESTS", "false").lower() in ("true", "1", "yes")
+        
         try:
-            # Get user answers
-            with get_session() as session:
-                user = session.query(User).filter(User.telegram_id == telegram_id).first()
-                answers = json.loads(user.onboarding_answers) if user.onboarding_answers else []
-            
-            # Build psychotype prompt
-            psychotype_prompt = await self._build_psychotype_prompt(answers)
-            
-            logger.info("Generating psychotype analysis...")
-            psychotype_result = await self.ai_service.generate_response(psychotype_prompt)
-            
-            # Save psychotype
-            with get_session() as session:
-                user = session.query(User).filter(User.telegram_id == telegram_id).first()
-                user.psychotype = psychotype_result
-            
-            logger.info(f"Psychotype saved for user {telegram_id}")
-            
-            # Build recommendation prompt and get curator recommendations
-            recommendation_prompt = await self._build_recommendation_prompt(psychotype_result)
-            
-            logger.info("Generating curator recommendations...")
-            recommendations = await self.ai_service.generate_json_response(recommendation_prompt)
+            if skip_personality_requests:
+                # Use hardcoded values instead of AI requests
+                logger.info("SKIP_PERSONALITY_REQUESTS is enabled, using hardcoded values")
+                psychotype_result = "Обыкновенный человек"
+                recommendations = {
+                    "center": "vibe",
+                    "business": "vibe",
+                    "soul": "vibe",
+                    "body": "vibe"
+                }
+            else:
+                # Get user answers
+                with get_session() as session:
+                    user = session.query(User).filter(User.telegram_id == telegram_id).first()
+                    answers = json.loads(user.onboarding_answers) if user.onboarding_answers else []
+                
+                # Build psychotype prompt
+                psychotype_prompt = await self._build_psychotype_prompt(answers)
+                
+                logger.info("Generating psychotype analysis...")
+                psychotype_result = await self.ai_service.generate_response(psychotype_prompt)
+                
+                # Build recommendation prompt and get curator recommendations
+                recommendation_prompt = await self._build_recommendation_prompt(psychotype_result)
+                
+                logger.info("Generating curator recommendations...")
+                recommendations = await self.ai_service.generate_json_response(recommendation_prompt)
             
             # Validate recommendations
             required_fields = ["center", "business", "soul", "body"]
@@ -173,9 +180,10 @@ class OnboardingHandler:
                 if field not in recommendations:
                     raise ValueError(f"Missing required field in recommendations: {field}")
             
-            # Save recommendations
+            # Save psychotype and recommendations
             with get_session() as session:
                 user = session.query(User).filter(User.telegram_id == telegram_id).first()
+                user.psychotype = psychotype_result
                 user.recommended_center = recommendations["center"]
                 user.recommended_business = recommendations["business"]
                 user.recommended_soul = recommendations["soul"]

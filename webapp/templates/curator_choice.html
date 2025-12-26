@@ -212,32 +212,32 @@
             </div>
         </section>
         
-        <!-- Business Section -->
+        <!-- Body Section -->
         <section class="mb-10">
             <div class="flex items-center gap-3 mb-5">
-                <span class="text-3xl sphere-icon text-accent-business">💼</span>
-                <h2 class="text-xl md:text-2xl font-semibold text-terracotta-300">Дело</h2>
+                <span class="text-3xl sphere-icon text-accent-body">💪</span>
+                <h2 class="text-xl md:text-2xl font-semibold text-terracotta-400">Тело</h2>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                {% for curator in curators.business %}
-                <div class="card-gradient rounded-2xl overflow-hidden {{ 'card-selected' if user.selected_business == curator.id else ('card-available' if curator.available else 'card-unavailable') }}"
-                     id="card-business-{{ curator.id }}">
+                {% for curator in curators.body %}
+                <div class="card-gradient rounded-2xl overflow-hidden {{ 'card-selected' if user.selected_body == curator.id else ('card-available' if curator.available else 'card-unavailable') }}"
+                     id="card-body-{{ curator.id }}">
                     <!-- Image -->
                     <div class="relative">
-                        <img src="/assets/curators/business/{{ curator.id }}.webp" 
+                        <img src="/assets/curators/body/{{ curator.id }}.webp" 
                              alt="{{ curator.name }}"
                              class="curator-image w-full"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23c9a882%22 font-size=%2240%22>💼</text></svg>'">
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23b89870%22 font-size=%2240%22>💪</text></svg>'">
                         
                         <!-- Badges -->
                         <div class="absolute top-2 left-2 flex flex-col gap-1">
-                            {% if user.recommended_business == curator.id %}
+                            {% if user.recommended_body == curator.id %}
                             <span class="badge-recommended text-xs font-medium px-2 py-0.5 rounded-full text-white shadow-lg">
                                 ⭐ Рекомендовано
                             </span>
                             {% endif %}
-                            {% if user.selected_business == curator.id %}
+                            {% if user.selected_body == curator.id %}
                             <span class="badge-selected text-xs font-medium px-2 py-0.5 rounded-full text-white shadow-lg">
                                 ✓ Выбрано
                             </span>
@@ -258,10 +258,10 @@
                         <h3 class="font-semibold text-sm md:text-base text-main mb-1 truncate">{{ curator.name }}</h3>
                         <p class="text-xs md:text-sm text-muted mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
                         
-                        <button onclick="selectCurator('business', '{{ curator.id }}')"
+                        <button onclick="selectCurator('body', '{{ curator.id }}')"
                                 class="btn-select w-full py-2 px-3 rounded-xl text-sm font-medium text-white"
                                 {% if not curator.available %}disabled{% endif %}>
-                            {% if user.selected_business == curator.id %}
+                            {% if user.selected_body == curator.id %}
                             Выбрано ✓
                             {% elif curator.available %}
                             Выбрать
@@ -338,32 +338,33 @@
             </div>
         </section>
         
-        <!-- Body Section -->
+        
+        <!-- Business Section -->
         <section class="mb-10">
             <div class="flex items-center gap-3 mb-5">
-                <span class="text-3xl sphere-icon text-accent-body">💪</span>
-                <h2 class="text-xl md:text-2xl font-semibold text-terracotta-400">Тело</h2>
+                <span class="text-3xl sphere-icon text-accent-business">💼</span>
+                <h2 class="text-xl md:text-2xl font-semibold text-terracotta-300">Дело</h2>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                {% for curator in curators.body %}
-                <div class="card-gradient rounded-2xl overflow-hidden {{ 'card-selected' if user.selected_body == curator.id else ('card-available' if curator.available else 'card-unavailable') }}"
-                     id="card-body-{{ curator.id }}">
+                {% for curator in curators.business %}
+                <div class="card-gradient rounded-2xl overflow-hidden {{ 'card-selected' if user.selected_business == curator.id else ('card-available' if curator.available else 'card-unavailable') }}"
+                     id="card-business-{{ curator.id }}">
                     <!-- Image -->
                     <div class="relative">
-                        <img src="/assets/curators/body/{{ curator.id }}.webp" 
+                        <img src="/assets/curators/business/{{ curator.id }}.webp" 
                              alt="{{ curator.name }}"
                              class="curator-image w-full"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23b89870%22 font-size=%2240%22>💪</text></svg>'">
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23c9a882%22 font-size=%2240%22>💼</text></svg>'">
                         
                         <!-- Badges -->
                         <div class="absolute top-2 left-2 flex flex-col gap-1">
-                            {% if user.recommended_body == curator.id %}
+                            {% if user.recommended_business == curator.id %}
                             <span class="badge-recommended text-xs font-medium px-2 py-0.5 rounded-full text-white shadow-lg">
                                 ⭐ Рекомендовано
                             </span>
                             {% endif %}
-                            {% if user.selected_body == curator.id %}
+                            {% if user.selected_business == curator.id %}
                             <span class="badge-selected text-xs font-medium px-2 py-0.5 rounded-full text-white shadow-lg">
                                 ✓ Выбрано
                             </span>
@@ -384,10 +385,10 @@
                         <h3 class="font-semibold text-sm md:text-base text-main mb-1 truncate">{{ curator.name }}</h3>
                         <p class="text-xs md:text-sm text-muted mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
                         
-                        <button onclick="selectCurator('body', '{{ curator.id }}')"
+                        <button onclick="selectCurator('business', '{{ curator.id }}')"
                                 class="btn-select w-full py-2 px-3 rounded-xl text-sm font-medium text-white"
                                 {% if not curator.available %}disabled{% endif %}>
-                            {% if user.selected_body == curator.id %}
+                            {% if user.selected_business == curator.id %}
                             Выбрано ✓
                             {% elif curator.available %}
                             Выбрать
