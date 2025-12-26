@@ -1,106 +1,159 @@
 import os
+import re
+import json
 import logging
-import replicate
+import asyncio
 from typing import Optional
+
+import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 logger = logging.getLogger(__name__)
 
 
 class AIService:
-    """Service for interacting with Replicate AI API."""
+    """Service for interacting with Google Gemini AI API."""
+    
+    _configured = False
     
     def __init__(self):
-        self.token = os.getenv("REPLICATE_TOKEN")
-        if not self.token:
-            logger.warning("REPLICATE_TOKEN not set in environment variables")
-        else:
-            os.environ["REPLICATE_API_TOKEN"] = self.token
-            logger.info("AIService initialized with Replicate token")
+        self.model_name = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+        self.model_fallback = os.getenv("GEMINI_MODEL_FALLBACK", "gemini-1.5-flash")
+        self.safety_settings = {
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+        }
+        self._configure_api()
     
-    async def generate_response(self, prompt: str, system_instruction: Optional[str] = None) -> str:
+    def _configure_api(self):
+        """Configure Gemini API with API key (only once)."""
+        if AIService._configured:
+            return
+        
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            logger.error("GEMINI_API_KEY not set in environment variables")
+            return
+        
+        try:
+            genai.configure(api_key=api_key)
+            AIService._configured = True
+            logger.info("Gemini API configured successfully")
+        except Exception as e:
+            logger.error(f"Gemini configuration error: {e}")
+    
+    def _get_model(self, use_fallback: bool = False) -> Optional[genai.GenerativeModel]:
+        """Get Gemini model instance with fallback support."""
+        try:
+            model_name = self.model_fallback if use_fallback else self.model_name
+            return genai.GenerativeModel(
+                model_name=model_name,
+                safety_settings=self.safety_settings
+            )
+        except Exception as e:
+            logger.error(f"Error initializing model: {e}")
+            return None
+    
+    def _clean_json_string(self, text: str) -> str:
+        """Remove markdown code blocks from JSON response."""
+        text = re.sub(r"```json\s*", "", text)
+        text = re.sub(r"```\s*", "", text)
+        return text.strip()
+    
+    async def generate_response(
+        self, 
+        prompt: str, 
+        system_instruction: Optional[str] = None,
+        temperature: float = 0.7
+    ) -> str:
         """
-        Generate a response from the AI model.
+        Generate a text response from Gemini.
         
         Args:
             prompt: The user prompt
             system_instruction: Optional system instruction
+            temperature: Generation temperature (0.0-1.0)
             
         Returns:
             The AI response as a string
         """
         logger.info(f"Generating AI response for prompt (length: {len(prompt)})")
-        logger.debug(f"Prompt preview")
-        logger.debug(prompt)
         
+        model = self._get_model(use_fallback=False)
+        if not model:
+            return "AI service not configured."
+        
+        full_prompt = prompt
+        if system_instruction:
+            full_prompt = f"{system_instruction}\n\n{prompt}"
+        
+        logger.debug(f"Prompt: {full_prompt}")
         try:
-            input_data = {
-                "prompt": prompt,
-                "temperature": 0.7,
-                "max_output_tokens": 2048
-            }
+            response = await asyncio.to_thread(
+                model.generate_content,
+                full_prompt,
+                generation_config={"temperature": temperature}
+            )
             
-            if system_instruction:
-                input_data["system_instruction"] = system_instruction
+            if not response.parts:
+                logger.error(f"Safety block: {response.prompt_feedback}")
+                return "Request blocked by safety filters. Please rephrase."
             
-            logger.info("Sending request to Replicate API (google/gemini-2.5-flash)")
-            
-            output = []
-            for event in replicate.stream("google/gemini-2.5-flash", input=input_data):
-                output.append(str(event))
-            
-            response = "".join(output)
-            logger.info(f"Received AI response (length: {len(response)})")
-            logger.debug(f"Response preview: {response[:200]}...")
-            
-            return response
+            result = response.text
+            logger.info(f"Received AI response (length: {len(result)})")
+            logger.debug(f"Response preview: {result[:200]}...")
+            return result
             
         except Exception as e:
-            logger.error(f"Error generating AI response: {e}", exc_info=True)
+            logger.error(f"Primary model failed: {e}")
+            
+            # Try fallback model
+            logger.info(f"Trying fallback model: {self.model_fallback}")
+            model_fallback = self._get_model(use_fallback=True)
+            
+            if model_fallback:
+                try:
+                    response = await asyncio.to_thread(
+                        model_fallback.generate_content,
+                        full_prompt,
+                        generation_config={"temperature": temperature}
+                    )
+                    return response.text
+                except Exception as e2:
+                    logger.error(f"Fallback model also failed: {e2}")
+            
             raise
     
     async def generate_json_response(self, prompt: str, max_retries: int = 3) -> dict:
         """
-        Generate a JSON response from the AI model with retry logic.
+        Generate a JSON response from Gemini with retry logic.
         
         Args:
-            prompt: The user prompt expecting JSON response
+            prompt: The prompt expecting JSON response
             max_retries: Maximum number of retries if JSON parsing fails
             
         Returns:
             Parsed JSON response as dictionary
         """
-        import json
-        
         logger.info(f"Generating JSON response with max {max_retries} retries")
         
         for attempt in range(max_retries):
             logger.info(f"Attempt {attempt + 1}/{max_retries} to get valid JSON")
             
             try:
-                response = await self.generate_response(prompt)
-                
-                # Try to extract JSON from response
-                response = response.strip()
-                
-                # Remove markdown code blocks if present
-                if response.startswith("```json"):
-                    response = response[7:]
-                if response.startswith("```"):
-                    response = response[3:]
-                if response.endswith("```"):
-                    response = response[:-3]
-                
-                response = response.strip()
-                
-                result = json.loads(response)
-                logger.info(f"Successfully parsed JSON response on attempt {attempt + 1}")
+                response = await self.generate_response(prompt, temperature=0.1)
+                clean_text = self._clean_json_string(response)
+                result = json.loads(clean_text)
+                logger.info(f"Successfully parsed JSON on attempt {attempt + 1}")
                 return result
                 
             except json.JSONDecodeError as e:
                 logger.warning(f"JSON parsing failed on attempt {attempt + 1}: {e}")
                 if attempt == max_retries - 1:
-                    logger.error("Max retries reached, could not parse JSON response")
-                    raise ValueError(f"Failed to parse JSON response after {max_retries} attempts: {e}")
+                    logger.error("Max retries reached, could not parse JSON")
+                    raise ValueError(f"Failed to parse JSON after {max_retries} attempts: {e}")
                     
             except Exception as e:
                 logger.error(f"Error on attempt {attempt + 1}: {e}", exc_info=True)
@@ -108,5 +161,3 @@ class AIService:
                     raise
         
         raise ValueError("Failed to get valid JSON response")
-
-
