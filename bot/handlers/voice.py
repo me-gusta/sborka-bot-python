@@ -25,6 +25,7 @@ class VoiceHandler:
             if not user:
                 return False
             return all([
+                user.selected_center,
                 user.selected_business,
                 user.selected_soul,
                 user.selected_body

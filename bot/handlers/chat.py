@@ -31,6 +31,7 @@ class ChatHandler:
             if not user:
                 return False
             return all([
+                user.selected_center,
                 user.selected_business,
                 user.selected_soul,
                 user.selected_body
@@ -44,7 +45,7 @@ class ChatHandler:
                 return None
             
             if sphere == "center":
-                return "center"
+                return user.selected_center
             elif sphere == "business":
                 return user.selected_business
             elif sphere == "soul":

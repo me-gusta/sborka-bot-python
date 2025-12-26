@@ -33,9 +33,11 @@ def get_or_create_user(telegram_id: int, username: Optional[str] = None) -> User
                 'onboarding_step': user.onboarding_step,
                 'onboarding_answers': user.onboarding_answers,
                 'psychotype': user.psychotype,
+                'recommended_center': user.recommended_center,
                 'recommended_business': user.recommended_business,
                 'recommended_soul': user.recommended_soul,
                 'recommended_body': user.recommended_body,
+                'selected_center': user.selected_center,
                 'selected_business': user.selected_business,
                 'selected_soul': user.selected_soul,
                 'selected_body': user.selected_body,
@@ -64,9 +66,11 @@ def get_or_create_user(telegram_id: int, username: Optional[str] = None) -> User
                 'onboarding_step': user.onboarding_step,
                 'onboarding_answers': user.onboarding_answers,
                 'psychotype': user.psychotype,
+                'recommended_center': user.recommended_center,
                 'recommended_business': user.recommended_business,
                 'recommended_soul': user.recommended_soul,
                 'recommended_body': user.recommended_body,
+                'selected_center': user.selected_center,
                 'selected_business': user.selected_business,
                 'selected_soul': user.selected_soul,
                 'selected_body': user.selected_body,
@@ -104,18 +108,15 @@ def load_curator_prompt(sphere: str, curator: Optional[str] = None) -> str:
     
     Args:
         sphere: The sphere (center, soul, body, business)
-        curator: The curator label (e.g., 'coach', 'friend', 'empathy', etc.)
-                 Not needed for center sphere.
+        curator: The curator label (e.g., 'plan', 'vibe', etc.)
     
     Returns:
         The prompt template string
     """
-    if sphere == "center":
-        prompt_path = os.path.join(CONTENT_DIR, "curators", "center.txt")
-    else:
-        if not curator:
-            raise ValueError(f"Curator label required for sphere: {sphere}")
-        prompt_path = os.path.join(CONTENT_DIR, "curators", sphere, f"{curator}.txt")
+    if not curator:
+        raise ValueError(f"Curator label required for sphere: {sphere}")
+    
+    prompt_path = os.path.join(CONTENT_DIR, "curators", sphere, f"{curator}.txt")
     
     logger.info(f"Loading curator prompt from: {prompt_path}")
     

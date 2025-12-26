@@ -21,6 +21,10 @@ app = Flask(__name__, template_folder='templates')
 
 # Available curators for each sphere
 CURATORS = {
+    "center": [
+        {"id": "plan", "name": "Развернутый", "description": "системный анализ всех сфер жизни, выявление связей и корневых причин, структурированные планы действий", "available": True},
+        {"id": "vibe", "name": "Краткий", "description": "быстрая координация сфер, короткие ответы по сути, фокус на главном", "available": True}
+    ],
     "business": [
         {"id": "plan", "name": "Развернутый", "description": "аналитик для создания личных принципов работы с деньгами через документирование ошибок, понимание циклов и долгосрочное стратегическое планирование.", "available": True},
         {"id": "vibe", "name": "Краткий", "description": "фокусировщик на измеримых целях и немедленном действии для всех форматов работы: от найма до бизнеса через приоритизацию и быстрые итерации.", "available": True},
@@ -71,9 +75,11 @@ def curator_choice():
         
         user_data = {
             "telegram_id": user.telegram_id,
+            "recommended_center": user.recommended_center,
             "recommended_business": user.recommended_business,
             "recommended_soul": user.recommended_soul,
             "recommended_body": user.recommended_body,
+            "selected_center": user.selected_center,
             "selected_business": user.selected_business,
             "selected_soul": user.selected_soul,
             "selected_body": user.selected_body
@@ -132,7 +138,9 @@ def select_curator():
             logger.error(f"User not found: {telegram_id}")
             return jsonify({"error": "User not found"}), 404
         
-        if sphere == "business":
+        if sphere == "center":
+            user.selected_center = curator
+        elif sphere == "business":
             user.selected_business = curator
         elif sphere == "soul":
             user.selected_soul = curator

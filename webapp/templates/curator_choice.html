@@ -60,20 +60,6 @@
             min-height: 100vh;
         }
         
-        /* Geometric background pattern like the image */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(135deg, transparent 40%, rgba(122, 139, 110, 0.3) 40%, rgba(122, 139, 110, 0.3) 60%, transparent 60%),
-                linear-gradient(225deg, transparent 40%, rgba(72, 86, 66, 0.4) 40%, rgba(72, 86, 66, 0.4) 60%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-        }
         
         .content-wrapper {
             position: relative;
@@ -162,6 +148,69 @@
         <h1 class="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-terracotta-300 via-marble-light to-terracotta-400 bg-clip-text text-transparent">
             Выбор наставников
         </h1>
+        
+        <!-- Center Section -->
+        <section class="mb-10">
+            <div class="flex items-center gap-3 mb-5">
+                <span class="text-3xl sphere-icon text-sage-300">🎯</span>
+                <h2 class="text-xl md:text-2xl font-semibold text-sage-300">Штаб</h2>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {% for curator in curators.center %}
+                <div class="card-gradient rounded-2xl overflow-hidden {{ 'card-selected' if user.selected_center == curator.id else ('card-available' if curator.available else 'card-unavailable') }}"
+                     id="card-center-{{ curator.id }}">
+                    <!-- Image -->
+                    <div class="relative">
+                        <img src="/assets/curators/center/{{ curator.id }}.webp" 
+                             alt="{{ curator.name }}"
+                             class="curator-image w-full"
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23a8bca0%22 font-size=%2240%22>🎯</text></svg>'">
+                        
+                        <!-- Badges -->
+                        <div class="absolute top-2 left-2 flex flex-col gap-1">
+                            {% if user.recommended_center == curator.id %}
+                            <span class="badge-recommended text-xs font-medium px-2 py-0.5 rounded-full text-white shadow-lg">
+                                ⭐ Рекомендовано
+                            </span>
+                            {% endif %}
+                            {% if user.selected_center == curator.id %}
+                            <span class="badge-selected text-xs font-medium px-2 py-0.5 rounded-full text-white shadow-lg">
+                                ✓ Выбрано
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if not curator.available %}
+                        <div class="absolute top-2 right-2">
+                            <span class="locked-badge text-xs font-medium px-2 py-0.5 rounded-full">
+                                🔒 Скоро
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-3 md:p-4">
+                        <h3 class="font-semibold text-sm md:text-base text-main mb-1 truncate">{{ curator.name }}</h3>
+                        <p class="text-xs md:text-sm text-muted mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
+                        
+                        <button onclick="selectCurator('center', '{{ curator.id }}')"
+                                class="btn-select w-full py-2 px-3 rounded-xl text-sm font-medium text-white"
+                                {% if not curator.available %}disabled{% endif %}>
+                            {% if user.selected_center == curator.id %}
+                            Выбрано ✓
+                            {% elif curator.available %}
+                            Выбрать
+                            {% else %}
+                            Недоступно
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
         
         <!-- Business Section -->
         <section class="mb-10">

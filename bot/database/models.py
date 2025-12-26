@@ -35,11 +35,13 @@ class User(Base):
     recommended_business = Column(String(50), nullable=True)
     recommended_soul = Column(String(50), nullable=True)
     recommended_body = Column(String(50), nullable=True)
+    recommended_center = Column(String(50), nullable=True)
     
     # Selected curators
     selected_business = Column(String(50), nullable=True)
     selected_soul = Column(String(50), nullable=True)
     selected_body = Column(String(50), nullable=True)
+    selected_center = Column(String(50), nullable=True)
     
     # Thread IDs for sphere detection
     chat_id = Column(Integer, nullable=True)
@@ -61,7 +63,8 @@ class User(Base):
         return all([
             self.selected_business,
             self.selected_soul,
-            self.selected_body
+            self.selected_body,
+            self.selected_center
         ])
 
     def get_curator_for_sphere(self, sphere: str) -> str:
@@ -70,7 +73,7 @@ class User(Base):
             "business": self.selected_business,
             "soul": self.selected_soul,
             "body": self.selected_body,
-            "center": "center"
+            "center": self.selected_center
         }
         return mapping.get(sphere)
 

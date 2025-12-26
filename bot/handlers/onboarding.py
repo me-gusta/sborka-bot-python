@@ -168,7 +168,7 @@ class OnboardingHandler:
             recommendations = await self.ai_service.generate_json_response(recommendation_prompt)
             
             # Validate recommendations
-            required_fields = ["business", "soul", "body"]
+            required_fields = ["center", "business", "soul", "body"]
             for field in required_fields:
                 if field not in recommendations:
                     raise ValueError(f"Missing required field in recommendations: {field}")
@@ -176,11 +176,13 @@ class OnboardingHandler:
             # Save recommendations
             with get_session() as session:
                 user = session.query(User).filter(User.telegram_id == telegram_id).first()
+                user.recommended_center = recommendations["center"]
                 user.recommended_business = recommendations["business"]
                 user.recommended_soul = recommendations["soul"]
                 user.recommended_body = recommendations["body"]
                 
                 # Also set as selected curators
+                user.selected_center = recommendations["center"]
                 user.selected_business = recommendations["business"]
                 user.selected_soul = recommendations["soul"]
                 user.selected_body = recommendations["body"]
