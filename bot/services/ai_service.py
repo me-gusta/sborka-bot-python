@@ -29,7 +29,8 @@ class AIService:
             The AI response as a string
         """
         logger.info(f"Generating AI response for prompt (length: {len(prompt)})")
-        logger.debug(f"Prompt preview: {prompt[:200]}...")
+        logger.debug(f"Prompt preview")
+        logger.debug(prompt)
         
         try:
             input_data = {

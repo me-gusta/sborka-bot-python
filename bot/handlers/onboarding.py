@@ -193,7 +193,6 @@ class OnboardingHandler:
             # Send success message with psychotype
             await update.callback_query.message.reply_text(
                 f"✅ Тест завершён!\n\n"
-                f"Ваш психотип:\n{psychotype_result}\n\n"
                 f"Мы подобрали для вас наставников на основе вашего профиля."
             )
             
@@ -275,8 +274,11 @@ class OnboardingHandler:
         
         logger.info(f"Sending curators message with webapp URL: {curator_page_url_with_user}")
         
-        if update.callback_query:
-            await update.callback_query.answer()
+        try:
+            if update.callback_query:
+                await update.callback_query.answer()
+        except:
+            ...
 
         chat_id = update.effective_chat.id
         await context.bot.send_message(
