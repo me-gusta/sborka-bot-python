@@ -17,18 +17,38 @@
                         'onest': ['Onest', 'sans-serif'],
                     },
                     colors: {
-                        'tg-bg': 'var(--tg-theme-bg-color, #1a1a2e)',
-                        'tg-text': 'var(--tg-theme-text-color, #eaeaea)',
-                        'tg-hint': 'var(--tg-theme-hint-color, #8b8b9e)',
-                        'tg-link': 'var(--tg-theme-link-color, #6c5ce7)',
-                        'tg-button': 'var(--tg-theme-button-color, #6c5ce7)',
-                        'tg-button-text': 'var(--tg-theme-button-text-color, #ffffff)',
-                        'tg-secondary-bg': 'var(--tg-theme-secondary-bg-color, #16162a)',
-                        'card': '#1e1e3f',
-                        'card-hover': '#252550',
-                        'accent-business': '#f59e0b',
-                        'accent-soul': '#8b5cf6',
-                        'accent-body': '#10b981',
+                        'sage': {
+                            50: '#f4f6f3',
+                            100: '#e6ebe3',
+                            200: '#cdd8c8',
+                            300: '#a8bca0',
+                            400: '#7d9a72',
+                            500: '#6b7d5f',
+                            600: '#5a6b52',
+                            700: '#485642',
+                            800: '#3c4638',
+                            900: '#333b30',
+                        },
+                        'terracotta': {
+                            50: '#fdf8f3',
+                            100: '#f5e6d8',
+                            200: '#e8d0b8',
+                            300: '#d4b896',
+                            400: '#c9a882',
+                            500: '#b89870',
+                            600: '#a07a54',
+                            700: '#866346',
+                            800: '#6d503c',
+                            900: '#5a4234',
+                        },
+                        'marble': {
+                            light: '#e8dcd0',
+                            DEFAULT: '#d4c4b0',
+                            dark: '#b89870',
+                        },
+                        'accent-business': '#c9a882',
+                        'accent-soul': '#a8bca0',
+                        'accent-body': '#b89870',
                     }
                 }
             }
@@ -36,12 +56,32 @@
     </script>
     <style>
         body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16162a 100%);
+            background: #27282e;
             min-height: 100vh;
         }
         
+        /* Geometric background pattern like the image */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, transparent 40%, rgba(122, 139, 110, 0.3) 40%, rgba(122, 139, 110, 0.3) 60%, transparent 60%),
+                linear-gradient(225deg, transparent 40%, rgba(72, 86, 66, 0.4) 40%, rgba(72, 86, 66, 0.4) 60%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        
         .card-gradient {
-            background: linear-gradient(145deg, rgba(30, 30, 63, 0.9) 0%, rgba(22, 22, 42, 0.95) 100%);
+            background: linear-gradient(145deg, rgba(60, 70, 56, 0.95) 0%, rgba(51, 59, 48, 0.98) 100%);
             backdrop-filter: blur(10px);
         }
         
@@ -55,58 +95,71 @@
         }
         
         .badge-recommended {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, #c9a882 0%, #a07a54 100%);
         }
         
         .badge-selected {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #7d9a72 0%, #5a6b52 100%);
         }
         
         .btn-select {
-            background: linear-gradient(135deg, #6c5ce7 0%, #5b4cdb 100%);
+            background: linear-gradient(135deg, #b89870 0%, #a07a54 100%);
             transition: all 0.3s ease;
         }
         
         .btn-select:hover:not(:disabled) {
-            background: linear-gradient(135deg, #7c6cf7 0%, #6b5ceb 100%);
+            background: linear-gradient(135deg, #c9a882 0%, #b89870 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+            box-shadow: 0 8px 25px rgba(184, 152, 112, 0.4);
         }
         
         .btn-select:disabled {
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            background: linear-gradient(135deg, #485642 0%, #3c4638 100%);
             cursor: not-allowed;
             opacity: 0.6;
         }
         
         .card-available {
-            border: 1px solid rgba(108, 92, 231, 0.2);
+            border: 1px solid rgba(184, 152, 112, 0.3);
         }
         
         .card-unavailable {
-            border: 1px solid rgba(75, 85, 99, 0.3);
+            border: 1px solid rgba(90, 107, 82, 0.4);
             opacity: 0.7;
         }
         
         .card-selected {
-            border: 2px solid #10b981;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+            border: 2px solid #7d9a72;
+            box-shadow: 0 0 20px rgba(125, 154, 114, 0.3);
         }
         
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
-            50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+            0%, 100% { box-shadow: 0 0 15px rgba(125, 154, 114, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(125, 154, 114, 0.5); }
         }
         
         .card-selected {
             animation: pulse-glow 2s ease-in-out infinite;
         }
+        
+        .text-main {
+            color: #e8dcd0;
+        }
+        
+        .text-muted {
+            color: #a8bca0;
+        }
+        
+        .locked-badge {
+            background: rgba(72, 86, 66, 0.9);
+            color: #a8bca0;
+        }
     </style>
 </head>
-<body class="font-onest text-tg-text pb-8">
-    <div class="max-w-2xl mx-auto px-4 py-6">
+<body class="font-onest pb-8">
+    <div class="content-wrapper max-w-2xl mx-auto px-4 py-6">
         <!-- Header -->
-        <h1 class="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400 bg-clip-text text-transparent">
+        <h1 class="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-terracotta-300 via-marble-light to-terracotta-400 bg-clip-text text-transparent">
             Выбор наставников
         </h1>
         
@@ -114,7 +167,7 @@
         <section class="mb-10">
             <div class="flex items-center gap-3 mb-5">
                 <span class="text-3xl sphere-icon text-accent-business">💼</span>
-                <h2 class="text-xl md:text-2xl font-semibold text-accent-business">Дело</h2>
+                <h2 class="text-xl md:text-2xl font-semibold text-terracotta-300">Дело</h2>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
@@ -126,7 +179,7 @@
                         <img src="/assets/curators/business/{{ curator.id }}.webp" 
                              alt="{{ curator.name }}"
                              class="curator-image w-full"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231e1e3f%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%236c5ce7%22 font-size=%2240%22>💼</text></svg>'">
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23c9a882%22 font-size=%2240%22>💼</text></svg>'">
                         
                         <!-- Badges -->
                         <div class="absolute top-2 left-2 flex flex-col gap-1">
@@ -144,7 +197,7 @@
                         
                         {% if not curator.available %}
                         <div class="absolute top-2 right-2">
-                            <span class="bg-gray-700/80 text-xs font-medium px-2 py-0.5 rounded-full text-gray-300">
+                            <span class="locked-badge text-xs font-medium px-2 py-0.5 rounded-full">
                                 🔒 Скоро
                             </span>
                         </div>
@@ -153,8 +206,8 @@
                     
                     <!-- Content -->
                     <div class="p-3 md:p-4">
-                        <h3 class="font-semibold text-sm md:text-base text-white mb-1 truncate">{{ curator.name }}</h3>
-                        <p class="text-xs md:text-sm text-tg-hint mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
+                        <h3 class="font-semibold text-sm md:text-base text-main mb-1 truncate">{{ curator.name }}</h3>
+                        <p class="text-xs md:text-sm text-muted mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
                         
                         <button onclick="selectCurator('business', '{{ curator.id }}')"
                                 class="btn-select w-full py-2 px-3 rounded-xl text-sm font-medium text-white"
@@ -177,7 +230,7 @@
         <section class="mb-10">
             <div class="flex items-center gap-3 mb-5">
                 <span class="text-3xl sphere-icon text-accent-soul">🧘</span>
-                <h2 class="text-xl md:text-2xl font-semibold text-accent-soul">Душа</h2>
+                <h2 class="text-xl md:text-2xl font-semibold text-sage-300">Душа</h2>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
@@ -189,7 +242,7 @@
                         <img src="/assets/curators/soul/{{ curator.id }}.webp" 
                              alt="{{ curator.name }}"
                              class="curator-image w-full"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231e1e3f%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%238b5cf6%22 font-size=%2240%22>🧘</text></svg>'">
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23a8bca0%22 font-size=%2240%22>🧘</text></svg>'">
                         
                         <!-- Badges -->
                         <div class="absolute top-2 left-2 flex flex-col gap-1">
@@ -207,7 +260,7 @@
                         
                         {% if not curator.available %}
                         <div class="absolute top-2 right-2">
-                            <span class="bg-gray-700/80 text-xs font-medium px-2 py-0.5 rounded-full text-gray-300">
+                            <span class="locked-badge text-xs font-medium px-2 py-0.5 rounded-full">
                                 🔒 Скоро
                             </span>
                         </div>
@@ -216,8 +269,8 @@
                     
                     <!-- Content -->
                     <div class="p-3 md:p-4">
-                        <h3 class="font-semibold text-sm md:text-base text-white mb-1 truncate">{{ curator.name }}</h3>
-                        <p class="text-xs md:text-sm text-tg-hint mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
+                        <h3 class="font-semibold text-sm md:text-base text-main mb-1 truncate">{{ curator.name }}</h3>
+                        <p class="text-xs md:text-sm text-muted mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
                         
                         <button onclick="selectCurator('soul', '{{ curator.id }}')"
                                 class="btn-select w-full py-2 px-3 rounded-xl text-sm font-medium text-white"
@@ -240,7 +293,7 @@
         <section class="mb-10">
             <div class="flex items-center gap-3 mb-5">
                 <span class="text-3xl sphere-icon text-accent-body">💪</span>
-                <h2 class="text-xl md:text-2xl font-semibold text-accent-body">Тело</h2>
+                <h2 class="text-xl md:text-2xl font-semibold text-terracotta-400">Тело</h2>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
@@ -252,7 +305,7 @@
                         <img src="/assets/curators/body/{{ curator.id }}.webp" 
                              alt="{{ curator.name }}"
                              class="curator-image w-full"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231e1e3f%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%2310b981%22 font-size=%2240%22>💪</text></svg>'">
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%233c4638%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23b89870%22 font-size=%2240%22>💪</text></svg>'">
                         
                         <!-- Badges -->
                         <div class="absolute top-2 left-2 flex flex-col gap-1">
@@ -270,7 +323,7 @@
                         
                         {% if not curator.available %}
                         <div class="absolute top-2 right-2">
-                            <span class="bg-gray-700/80 text-xs font-medium px-2 py-0.5 rounded-full text-gray-300">
+                            <span class="locked-badge text-xs font-medium px-2 py-0.5 rounded-full">
                                 🔒 Скоро
                             </span>
                         </div>
@@ -279,8 +332,8 @@
                     
                     <!-- Content -->
                     <div class="p-3 md:p-4">
-                        <h3 class="font-semibold text-sm md:text-base text-white mb-1 truncate">{{ curator.name }}</h3>
-                        <p class="text-xs md:text-sm text-tg-hint mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
+                        <h3 class="font-semibold text-sm md:text-base text-main mb-1 truncate">{{ curator.name }}</h3>
+                        <p class="text-xs md:text-sm text-muted mb-3 line-clamp-2 h-8 md:h-10">{{ curator.description }}</p>
                         
                         <button onclick="selectCurator('body', '{{ curator.id }}')"
                                 class="btn-select w-full py-2 px-3 rounded-xl text-sm font-medium text-white"
@@ -300,12 +353,12 @@
         </section>
         
         <!-- Done Button -->
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0f0f23] via-[#0f0f23] to-transparent">
+        <!-- <div class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-sage-700 via-sage-700/95 to-transparent">
             <button onclick="closeWebApp()" 
                     class="w-full max-w-2xl mx-auto block btn-select py-3 px-6 rounded-2xl text-base font-semibold text-white shadow-xl">
                 Готово
             </button>
-        </div>
+        </div> -->
     </div>
     
     <script>
@@ -315,15 +368,6 @@
         // Initialize Telegram WebApp
         tg.ready();
         tg.expand();
-        
-        // Apply Telegram theme colors
-        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1a1a2e');
-        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#eaeaea');
-        document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#8b8b9e');
-        document.documentElement.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color || '#6c5ce7');
-        document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#6c5ce7');
-        document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#ffffff');
-        document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#16162a');
         
         async function selectCurator(sphere, curatorId) {
             console.log(`Selecting curator ${curatorId} for sphere ${sphere}`);
