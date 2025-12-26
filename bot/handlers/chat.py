@@ -199,20 +199,37 @@ class ChatHandler:
             )
             return
         
-        # Detect sphere
+        # Detect sphere from topic name
         sphere = None
-        if message_thread_id:
-            sphere = get_sphere_by_thread(telegram_id, chat_id, message_thread_id)
         
+        # Try to get sphere from message thread topic
+        if message_thread_id:
+            # Try to get topic name from the message
+            if update.message.reply_to_message and update.message.reply_to_message.forum_topic_created:
+                topic_name = update.message.reply_to_message.forum_topic_created.name
+                sphere = detect_sphere_from_topic(topic_name)
+                if sphere:
+                    # Update user's thread mapping
+                    update_user_thread(telegram_id, sphere, message_thread_id, chat_id)
+            
+            # If not found from topic creation, try to get from stored mapping
+            if not sphere:
+                sphere = get_sphere_by_thread(telegram_id, chat_id, message_thread_id)
+        
+        # If no sphere detected and it's a direct message (not in topic)
         if not sphere and not message_thread_id:
             sphere = "center"
+            logger.info("No thread ID, defaulting to center sphere")
         
         if not sphere:
             logger.warning(f"Could not detect sphere for voice message from user {telegram_id}")
             await update.message.reply_text(
-                "Не удалось определить сферу для этого сообщения."
+                "Не удалось определить сферу для этого сообщения. "
+                "Пожалуйста, убедитесь, что пишете в правильном топике."
             )
             return
+        
+        logger.info(f"Detected sphere: {sphere}")
         
         # Get curator
         curator = self._get_user_curator(telegram_id, sphere)

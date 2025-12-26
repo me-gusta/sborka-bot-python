@@ -54,10 +54,17 @@ class SummarizationService:
             
             if summarization:
                 logger.debug(f"Found last summarization for user {user_id} in {sphere}")
+                # Return detached copy to avoid session issues
+                return Summarization(
+                    id=summarization.id,
+                    user_id=summarization.user_id,
+                    sphere=summarization.sphere,
+                    text=summarization.text,
+                    created_at=summarization.created_at
+                )
             else:
                 logger.debug(f"No summarization found for user {user_id} in {sphere}")
-            
-            return summarization
+                return None
     
     def get_last_summarization_text(self, user_id: int, sphere: str) -> str:
         """Get the text of the last summarization, or 'no data' if none exists."""
@@ -69,7 +76,11 @@ class SummarizationService:
     def _get_messages_since_last_summarization(self, user_id: int, sphere: str) -> List[Message]:
         """Get all messages since the last summarization."""
         with get_session() as session:
-            last_sum = self._get_last_summarization(user_id, sphere)
+            # Query last summarization within same session to avoid detached instance error
+            last_sum = session.query(Summarization).filter(
+                Summarization.user_id == user_id,
+                Summarization.sphere == sphere
+            ).order_by(Summarization.created_at.desc()).first()
             
             query = session.query(Message).filter(
                 Message.user_id == user_id,

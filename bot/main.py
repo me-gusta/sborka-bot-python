@@ -10,6 +10,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     filters
 )
+from telegram.request import HTTPXRequest
 
 from .database import init_db
 from .services import AIService, SpeechService, SummarizationService
@@ -123,37 +124,22 @@ class SborkaBot:
         logger.info("Starting bot...")
         logger.info(f"USE_TG_TEST: {self.use_test_env}")
 
-        # Build application
+        # Build application with increased timeouts
+        request = HTTPXRequest(
+            read_timeout=60,
+            write_timeout=60,
+            connect_timeout=30,
+        )
         builder = (Application.builder()
-                .base_url("https://api.telegram.org/bot{token}/test")
-                .base_file_url("https://api.telegram.org/file/bot{token}/test").token(self.bot_token))
+                .token(self.bot_token)
+                .request(request))
 
         # Use test environment if configured
-        # IMPORTANT: Test environment requires:
-        # 1. A bot token created in Telegram Test Environment (via test app)
-        # 2. The test environment uses different DC servers
-        # 
-        # To create a test bot:
-        # - iOS: Tap Settings icon 10 times quickly to access test environment
-        # - Android: Go to Settings > Hold on version number 
-        # - Then create a new account and bot via test @BotFather
         if self.use_test_env:
             logger.info("Using Telegram test environment")
-            # Test environment API endpoints
-            # Test DC uses: api.telegram.org but with test tokens
-            # For local Bot API server test mode, you'd use:
-            (
-                builder
+            builder = (builder
                 .base_url("https://api.telegram.org/bot{token}/test")
-                .base_file_url("https://api.telegram.org/file/bot{token}/test")
-            )
-            # builder.base_url("http://localhost:8081/bot")
-            # builder.base_file_url("http://localhost:8081/file/bot")
-            # builder.local_mode(True)
-            #
-            # For official test DC, just use a test environment token
-            # The base URL stays the same, but token must be from test env
-            pass
+                .base_file_url("https://api.telegram.org/file/bot{token}/test"))
         else:
             logger.info("Using Telegram production environment")
 
