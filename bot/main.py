@@ -69,7 +69,7 @@ class SborkaBot:
                 "Пожалуйста, сначала завершите тест личности, отвечая на вопросы выше."
             )
             return
-
+        print('onboarding_handler', telegram_id)
         # Handle as regular chat message
         await self.chat_handler.handle_text_message(update, context)
 

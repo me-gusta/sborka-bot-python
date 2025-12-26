@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 
 # Add parent directory to path for imports
@@ -22,16 +22,25 @@ app = Flask(__name__, template_folder='templates')
 # Available curators for each sphere
 CURATORS = {
     "business": [
-        {"id": "coach", "name": "Коуч", "description": "Строгий бизнес-коуч"},
-        {"id": "friend", "name": "Друг", "description": "Дружелюбный наставник"}
+        {"id": "plan", "name": "Развернутый", "description": "аналитик для создания личных принципов работы с деньгами через документирование ошибок, понимание циклов и долгосрочное стратегическое планирование.", "available": True},
+        {"id": "vibe", "name": "Краткий", "description": "фокусировщик на измеримых целях и немедленном действии для всех форматов работы: от найма до бизнеса через приоритизацию и быстрые итерации.", "available": True},
+        {"id": "sandberg", "name": "Шерил Сэндберг", "description": "эксперт по корпоративной карьере, переговорам о зарплате и нетворкингу для тех, кто работает в офисе и хочет расти вертикально.", "available": False},
+        {"id": "chehov", "name": "Антон Павлович Чехов", "description": "наставник для творческих людей по монетизации таланта через множественные каналы: от журналов до театров, от прагматизма к искусству.", "available": False},
+        {"id": "belford", "name": "Джордан Белфорт", "description": "мастер продаж и убеждения для тех, кому нужны деньги здесь и сейчас через бизнес.", "available": False}
     ],
     "soul": [
-        {"id": "empathy", "name": "Эмпат", "description": "Эмпатичный психолог"},
-        {"id": "mindfulness", "name": "Осознанность", "description": "Мастер осознанности"}
+        {"id": "plan", "name": "Развернутый", "description": "Наставник по глубинной психологии и работе с бессознательным", "available": True},
+        {"id": "vibe", "name": "Краткий", "description": "Наставник по стоической философии и практическим инструментам", "available": True},
+        {"id": "markaryan", "name": "Арсен Маркарян", "description": "практический психолог для распознавания манипуляций, ролей в треугольнике Карпмана и понимания игр во всех отношениях.", "available": False},
+        {"id": "osho", "name": "Ошо", "description": "провокационный учитель медитации и наблюдения для тех, кто хочет отстраниться от отождествления с мыслями и эмоциями.", "available": False},
+        {"id": "avrelii", "name": "Марк Аврелий", "description": "прагматичный стоик с краткими максимами для различения контролируемого от неконтролируемого и принятия реальности без драмы.", "available": False}
     ],
     "body": [
-        {"id": "strict", "name": "Строгий", "description": "Строгий тренер"},
-        {"id": "relaxed", "name": "Расслабленный", "description": "Расслабленный подход"}
+        {"id": "plan", "name": "Развернутый", "description": "биохакинг, наука, холистический подход", "available": True},
+        {"id": "vibe", "name": "Краткий", "description": "прямые команды, старая школа", "available": True},
+        {"id": "arnold", "name": "Арнольд Шварценеггер", "description": "силовые тренировки, бодибилдинг, масса", "available": False},
+        {"id": "brus", "name": "Брюс Ли", "description": "скорость, функциональность, боевые искусства, философия движения", "available": False},
+        {"id": "krishna", "name": "Кришнамачарья", "description": "йога, растяжка, мобильность, связь дыхания и тела", "available": False}
     ]
 }
 
@@ -139,6 +148,13 @@ def select_curator():
 def health():
     """Health check endpoint."""
     return jsonify({"status": "ok"})
+
+
+@app.route('/assets/<path:filepath>')
+def serve_assets(filepath):
+    """Serve static assets from the assets directory."""
+    assets_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'assets')
+    return send_from_directory(assets_dir, filepath)
 
 
 def run_webapp():
