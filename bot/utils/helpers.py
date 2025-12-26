@@ -129,7 +129,7 @@ def get_last_messages(user_id: int, sphere: str, limit: int = 10) -> List[Messag
         messages = session.query(Message).filter(
             Message.user_id == user_id,
             Message.sphere == sphere
-        ).order_by(Message.created_at.desc()).limit(limit).all()
+        ).order_by(Message.id.desc()).limit(limit).all()
         
         # Reverse to get chronological order and detach
         result = []
