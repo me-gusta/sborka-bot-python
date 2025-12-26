@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор наставников</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Выбор наставников</h1>
+    
+    <!-- Business Section -->
+    <section>
+        <h2>💼 Бизнес</h2>
+        {% for curator in curators.business %}
+        <div>
+            <strong>{{ curator.name }}</strong> - {{ curator.description }}
+            {% if user.recommended_business == curator.id %}
+            <span>[Рекомендовано]</span>
+            {% endif %}
+            {% if user.selected_business == curator.id %}
+            <span>[Выбрано]</span>
+            {% endif %}
+            <button onclick="selectCurator('business', '{{ curator.id }}')">Выбрать</button>
+        </div>
+        {% endfor %}
+    </section>
+    
+    <hr>
+    
+    <!-- Soul Section -->
+    <section>
+        <h2>🧘 Душа</h2>
+        {% for curator in curators.soul %}
+        <div>
+            <strong>{{ curator.name }}</strong> - {{ curator.description }}
+            {% if user.recommended_soul == curator.id %}
+            <span>[Рекомендовано]</span>
+            {% endif %}
+            {% if user.selected_soul == curator.id %}
+            <span>[Выбрано]</span>
+            {% endif %}
+            <button onclick="selectCurator('soul', '{{ curator.id }}')">Выбрать</button>
+        </div>
+        {% endfor %}
+    </section>
+    
+    <hr>
+    
+    <!-- Body Section -->
+    <section>
+        <h2>💪 Тело</h2>
+        {% for curator in curators.body %}
+        <div>
+            <strong>{{ curator.name }}</strong> - {{ curator.description }}
+            {% if user.recommended_body == curator.id %}
+            <span>[Рекомендовано]</span>
+            {% endif %}
+            {% if user.selected_body == curator.id %}
+            <span>[Выбрано]</span>
+            {% endif %}
+            <button onclick="selectCurator('body', '{{ curator.id }}')">Выбрать</button>
+        </div>
+        {% endfor %}
+    </section>
+    
+    <hr>
+    
+    <button onclick="closeWebApp()">Готово</button>
+    
+    <script>
+        const userId = {{ user.telegram_id }};
+        const tg = window.Telegram.WebApp;
+        
+        // Initialize Telegram WebApp
+        tg.ready();
+        tg.expand();
+        
+        async function selectCurator(sphere, curatorId) {
+            console.log(`Selecting curator ${curatorId} for sphere ${sphere}`);
+            
+            try {
+                const response = await fetch('/api/select-curator', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        sphere: sphere,
+                        curator: curatorId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(`Наставник выбран: ${curatorId}`);
+                    // Reload the page to update UI
+                    window.location.reload();
+                } else {
+                    alert(`Ошибка: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error selecting curator:', error);
+                alert('Произошла ошибка при выборе наставника');
+            }
+        }
+        
+        function closeWebApp() {
+            tg.close();
+        }
+    </script>
+</body>
+</html>
+
+
