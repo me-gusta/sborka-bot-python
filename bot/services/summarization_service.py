@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 from typing import Optional, List
 from jinja2 import Template
 from datetime import datetime
@@ -111,13 +112,14 @@ class SummarizationService:
                    f"count={count}, has_previous={has_previous}, should_summarize={should}")
         return should
     
-    async def summarize(self, user_id: int, sphere: str) -> Optional[str]:
+    async def summarize(self, user_id: int, sphere: str, max_retries: int = 3) -> Optional[str]:
         """
         Perform summarization for a user's conversation in a specific sphere.
         
         Args:
             user_id: The user's database ID
             sphere: The sphere to summarize (soul, body, business)
+            max_retries: Maximum number of retry attempts for AI service calls
             
         Returns:
             The summarization text, or None if summarization wasn't needed
@@ -128,44 +130,56 @@ class SummarizationService:
             logger.info("Summarization not needed at this time")
             return None
         
-        try:
-            # Get messages to summarize
-            messages = self._get_messages_since_last_summarization(user_id, sphere)
-            
-            if not messages:
-                logger.warning("No messages to summarize")
-                return None
-            
-            # Build history string
-            history_lines = []
-            for msg in messages:
-                role_label = "User" if msg.role == "user" else "Assistant"
-                history_lines.append(f"{role_label}: {msg.content}")
-            history = "\n".join(history_lines)
-            
-            # Load and render prompt template
-            prompt_template = self._load_summarization_prompt()
-            template = Template(prompt_template)
-            prompt = template.render(history=history)
-            
-            logger.info("Sending summarization request to AI")
-            summary_text = await self.ai_service.generate_response(prompt)
-            
-            # Save summarization to database
-            with get_session() as session:
-                summarization = Summarization(
-                    user_id=user_id,
-                    sphere=sphere,
-                    text=summary_text,
-                    created_at=datetime.utcnow()
-                )
-                session.add(summarization)
-            
-            logger.info(f"Summarization saved for user {user_id} in sphere {sphere}")
-            return summary_text
-            
-        except Exception as e:
-            logger.error(f"Error during summarization: {e}", exc_info=True)
-            raise
+        # Get messages to summarize
+        messages = self._get_messages_since_last_summarization(user_id, sphere)
+        
+        if not messages:
+            logger.warning("No messages to summarize")
+            return None
+        
+        # Build history string
+        history_lines = []
+        for msg in messages:
+            role_label = "User" if msg.role == "user" else "Assistant"
+            history_lines.append(f"{role_label}: {msg.content}")
+        history = "\n".join(history_lines)
+        
+        # Load and render prompt template
+        prompt_template = self._load_summarization_prompt()
+        template = Template(prompt_template)
+        prompt = template.render(history=history)
+        
+        # Retry logic with exponential backoff
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                logger.info(f"Sending summarization request to AI (attempt {attempt + 1}/{max_retries})")
+                summary_text = await self.ai_service.generate_response(prompt)
+                
+                # Save summarization to database
+                with get_session() as session:
+                    summarization = Summarization(
+                        user_id=user_id,
+                        sphere=sphere,
+                        text=summary_text,
+                        created_at=datetime.utcnow()
+                    )
+                    session.add(summarization)
+                
+                logger.info(f"Summarization saved for user {user_id} in sphere {sphere}")
+                return summary_text
+                
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Summarization attempt {attempt + 1}/{max_retries} failed: {e}")
+                
+                if attempt < max_retries - 1:
+                    # Exponential backoff: 1s, 2s, 4s, ...
+                    delay = 2 ** attempt
+                    logger.info(f"Retrying in {delay} seconds...")
+                    await asyncio.sleep(delay)
+        
+        logger.error(f"Summarization failed after {max_retries} attempts", exc_info=True)
+        raise last_error
 
 
