@@ -150,6 +150,13 @@ def get_last_messages(user_id: int, sphere: str, limit: int = 10) -> List[Messag
 
 
 def get_last_summarization_text(user_id: int, sphere: str) -> str:
+    messages = get_last_messages(user_id, sphere, limit=500)
+    history_lines = []
+    for msg in messages:
+        role_label = "User" if msg.role == "user" else "Assistant"
+        history_lines.append(f"{role_label}: {msg.content}")
+    history = "\n".join(history_lines) if history_lines else "no data"
+    return history
     """Get the text of the last summarization for a sphere, or 'no data'."""
     with get_session() as session:
         summarization = session.query(Summarization).filter(
@@ -185,7 +192,7 @@ def build_sphere_prompt(user_id: int, sphere: str, curator: Optional[str] = None
     sum_business = get_last_summarization_text(user_id, "business")
     
     # Get last 10 messages for this sphere
-    messages = get_last_messages(user_id, sphere, limit=10)
+    messages = get_last_messages(user_id, sphere, limit=500)
     history_lines = []
     for msg in messages:
         role_label = "User" if msg.role == "user" else "Assistant"

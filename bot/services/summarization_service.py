@@ -106,6 +106,7 @@ class SummarizationService:
             ]
     
     def should_summarize(self, user_id: int, sphere: str) -> bool:
+        return false
         """Check if summarization should be performed."""
         messages = self._get_messages_since_last_summarization(user_id, sphere)
         user_messages = [m for m in messages if m.role == "user"]
