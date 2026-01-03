@@ -59,6 +59,8 @@ class ChatHandler:
         """Handle incoming text messages."""
         telegram_id = update.effective_user.id
         username = update.effective_user.username
+        first_name = update.effective_user.first_name
+        last_name = update.effective_user.last_name
         message_text = update.message.text
         chat_id = update.effective_chat.id
         message_thread_id = update.message.message_thread_id
@@ -122,7 +124,7 @@ class ChatHandler:
         
         try:
             # Get user from database
-            user = get_or_create_user(telegram_id, username)
+            user = get_or_create_user(telegram_id, username, first_name, last_name)
             
             # Build the prompt
             system_prompt = build_sphere_prompt(user.id, sphere, curator)
@@ -242,7 +244,12 @@ class ChatHandler:
         await context.bot.send_chat_action(chat_id=chat_id, action="typing")
         
         try:
-            user = get_or_create_user(telegram_id, username)
+            user = get_or_create_user(
+                telegram_id, 
+                update.effective_user.username,
+                update.effective_user.first_name,
+                update.effective_user.last_name
+            )
             
             # Build prompt and generate response
             system_prompt = build_sphere_prompt(user.id, sphere, curator)

@@ -12,8 +12,13 @@ logger = logging.getLogger(__name__)
 CONTENT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "content")
 
 
-def get_or_create_user(telegram_id: int, username: Optional[str] = None) -> User:
-    """Get existing user or create a new one."""
+def get_or_create_user(
+    telegram_id: int, 
+    username: Optional[str] = None,
+    first_name: Optional[str] = None,
+    last_name: Optional[str] = None
+) -> User:
+    """Get existing user or create a new one, updating user info if changed."""
     logger.info(f"Getting or creating user with telegram_id: {telegram_id}")
     
     with get_session() as session:
@@ -21,14 +26,36 @@ def get_or_create_user(telegram_id: int, username: Optional[str] = None) -> User
         
         if user:
             logger.info(f"Found existing user: {user.id}")
-            if username and user.username != username:
+            updated = False
+            
+            # Update username if changed
+            if username is not None and user.username != username:
                 user.username = username
+                updated = True
                 logger.info(f"Updated username to: {username}")
+            
+            # Update first_name if changed
+            if first_name is not None and user.first_name != first_name:
+                user.first_name = first_name
+                updated = True
+                logger.info(f"Updated first_name to: {first_name}")
+            
+            # Update last_name if changed
+            if last_name is not None and user.last_name != last_name:
+                user.last_name = last_name
+                updated = True
+                logger.info(f"Updated last_name to: {last_name}")
+            
+            if updated:
+                session.commit()
+            
             # Create a detached copy
             user_data = {
                 'id': user.id,
                 'telegram_id': user.telegram_id,
                 'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
                 'is_onboarding': user.is_onboarding,
                 'onboarding_step': user.onboarding_step,
                 'onboarding_answers': user.onboarding_answers,
@@ -52,6 +79,8 @@ def get_or_create_user(telegram_id: int, username: Optional[str] = None) -> User
             user = User(
                 telegram_id=telegram_id,
                 username=username,
+                first_name=first_name,
+                last_name=last_name,
                 is_onboarding=True,
                 onboarding_step=0,
                 onboarding_answers=""
@@ -62,6 +91,8 @@ def get_or_create_user(telegram_id: int, username: Optional[str] = None) -> User
                 'id': user.id,
                 'telegram_id': user.telegram_id,
                 'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
                 'is_onboarding': user.is_onboarding,
                 'onboarding_step': user.onboarding_step,
                 'onboarding_answers': user.onboarding_answers,
@@ -294,5 +325,44 @@ def get_sphere_by_thread(telegram_id: int, chat_id: int, thread_id: Optional[int
         
         logger.debug(f"No matching thread found for thread_id: {thread_id}")
         return None
+
+
+def get_all_spheres_history(user_id: int) -> str:
+    """
+    Get conversation history from all four spheres formatted as specified.
+    
+    Args:
+        user_id: The user's database ID
+        
+    Returns:
+        Formatted history string with all spheres
+    """
+    logger.info(f"Getting all spheres history for user {user_id}")
+    
+    spheres = [
+        ("center", "Штаб"),
+        ("soul", "Душа"),
+        ("body", "Тело"),
+        ("business", "Дело")
+    ]
+    
+    history_parts = []
+    
+    for sphere_key, sphere_name in spheres:
+        messages = get_last_messages(user_id, sphere_key, limit=500)
+        
+        if messages:
+            history_lines = []
+            for msg in messages:
+                role_label = "USER" if msg.role == "user" else "AI"
+                history_lines.append(f"{role_label}: {msg.content}")
+            
+            sphere_history = "\n".join(history_lines)
+            history_parts.append(f"[СФЕРА {sphere_name}]\n{sphere_history}")
+    
+    result = "\n\n".join(history_parts) if history_parts else "[СФЕРА Штаб]\nno data\n\n[СФЕРА Душа]\nno data\n\n[СФЕРА Тело]\nno data\n\n[СФЕРА Дело]\nno data"
+    
+    logger.debug(f"Generated history for {len(spheres)} spheres (length: {len(result)})")
+    return result
 
 

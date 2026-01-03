@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import base64
 import logging
 import asyncio
 from typing import Optional
@@ -161,3 +162,60 @@ class AIService:
                     raise
         
         raise ValueError("Failed to get valid JSON response")
+    
+    async def generate_image(self, prompt: str) -> bytes:
+        """
+        Generate an image using Gemini image generation model.
+        
+        Args:
+            prompt: The image generation prompt
+            
+        Returns:
+            Image bytes
+        """
+        logger.info(f"Generating image with prompt (length: {len(prompt)})")
+        
+        try:
+            # Use gemini-3-pro-image-preview model for image generation
+            image_model = genai.GenerativeModel("gemini-3-pro-image-preview")
+            
+            response = await asyncio.to_thread(
+                image_model.generate_content,
+                prompt
+            )
+            
+            if not response.parts:
+                logger.error(f"Image generation blocked: {response.prompt_feedback}")
+                raise ValueError("Image generation blocked by safety filters")
+            
+            # Check if response contains image
+            if hasattr(response, 'parts') and response.parts:
+                for part in response.parts:
+                    if hasattr(part, 'inline_data') and part.inline_data:
+                        logger.info("Received image data from Gemini")
+                        return part.inline_data.data
+                    elif hasattr(part, 'text') and part.text:
+                        # Sometimes Gemini returns base64 encoded image in text
+                        try:
+                            # Try to decode as base64
+                            image_data = base64.b64decode(part.text)
+                            logger.info("Decoded image from base64 text")
+                            return image_data
+                        except:
+                            pass
+            
+            # Alternative: check if response has images
+            if hasattr(response, 'candidates') and response.candidates:
+                for candidate in response.candidates:
+                    if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                        for part in candidate.content.parts:
+                            if hasattr(part, 'inline_data') and part.inline_data:
+                                logger.info("Received image data from candidate")
+                                return part.inline_data.data
+            
+            logger.error("No image data found in response")
+            raise ValueError("No image data in response")
+            
+        except Exception as e:
+            logger.error(f"Image generation failed: {e}", exc_info=True)
+            raise

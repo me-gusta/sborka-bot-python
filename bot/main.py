@@ -45,7 +45,7 @@ class SborkaBot:
         # Initialize handlers
         self.onboarding_handler = OnboardingHandler(self.ai_service)
         self.chat_handler = ChatHandler(self.ai_service, self.summarization_service)
-        self.commands_handler = CommandsHandler(self.onboarding_handler)
+        self.commands_handler = CommandsHandler(self.onboarding_handler, self.ai_service)
         self.voice_handler = VoiceHandler(self.speech_service, self.chat_handler)
 
         # Get bot token
@@ -101,6 +101,8 @@ class SborkaBot:
 
         if data.startswith("onboard_"):
             await self.onboarding_handler.handle_answer(update, context)
+        elif data.startswith("poster_"):
+            await self.commands_handler.handle_poster_callback(update, context)
         else:
             logger.warning(f"Unknown callback data: {data}")
             await query.answer("Неизвестная команда")
@@ -149,6 +151,7 @@ class SborkaBot:
         application.add_handler(CommandHandler("start", self.commands_handler.start_command))
         application.add_handler(CommandHandler("psychotype", self.commands_handler.psychotype_command))
         application.add_handler(CommandHandler("curators", self.commands_handler.curators_command))
+        application.add_handler(CommandHandler("poster", self.commands_handler.poster_command))
         application.add_handler(CommandHandler("help", self.commands_handler.help_command))
 
         # Add callback query handler

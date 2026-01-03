@@ -2,18 +2,19 @@
     "format": "vertical_poster_3:4_2000x2800px",
     "style": "Y2K_vaporwave_retro_paper_texture_pixel_art",
     "language": "ru-RU_cyrillic_strict",
+  
     "cards": [
       {
         "id": "profile",
         "bg": "#F0EBE6",
         "position": "top_left",
         "elements": {
-          "portrait": "3D RPG CHARACTER; {{ user_name }}",
-          "name": "{{ user_name }}",
-          "bio": "{{ user_bio | default('Исследователь баланса жизни, навигирующий по 12 сферам существования. Мастерство целостной жизни через AI-трекинг.') }}",
-          "level_badge": "LVL {{ user_level }}",
-          "stats": "XP: {{ user_xp }} XP\nДата регистрации: {{ registration_date }}\nСерия: 🔥 {{ streak_days }} дней\n",
-          "stamp": "{{ stamp_text | default('ПОЗИТИВНОЕ МЫШЛЕНИЕ') }}",
+          "portrait": "3D RPG CHARACTER; {{character_description}}",
+          "name": "{{first_name}}",
+          "bio": "Исследователь баланса жизни, навигирующий по 12 сферам существования. Мастерство целостной жизни через AI-трекинг.",
+          "level_badge": "LVL {{level}}",
+          "stats": "XP: {{xp}} XP\nДата регистрации: {{join_date}}\nСерия: 🔥 {{streak_days}} дней\n",
+          "stamp": "ПОЗИТИВНОЕ МЫШЛЕНИЕ",
           "qr": true
         }
       },
@@ -21,7 +22,7 @@
         "id": "hello_world",
         "bg": "playfull_gradient",
         "position": "top_right",
-        "text": "{{ greeting_text | default('Hello\\nWorld') }}"
+        "text": "Hello\nWorld"
       },
       {
         "id": "life_balance",
@@ -30,12 +31,12 @@
         "elements": {
           "title": "Баланс Жизни",
           "agents": {
-            "🧠 ШТАБ (GEN)": "Стратег [{{ agent_gen_percent }}%]",
-            "💪 ТЕЛО (BOD)": "Тренер [{{ agent_bod_percent }}%]",
-            "💼 ДЕЛО (BIZ)": "Партнёр [{{ agent_biz_percent }}%]",
-            "🕊️ ДУША (SOUL)": "Ментор [{{ agent_soul_percent }}%]"
+            "🧠 ШТАБ (GEN)": "Стратег [{{sphere_center_percent}}%]",
+            "💪 ТЕЛО (BOD)": "Тренер [{{sphere_body_percent}}%]",
+            "💼 ДЕЛО (BIZ)": "Партнёр [{{sphere_business_percent}}%]",
+            "🕊️ ДУША (SOUL)": "Ментор [{{sphere_soul_percent}}%]"
           },
-          "stats": "🔥 {{ streak_days }} дней\n📝 {{ total_logs }} всего",
+          "stats": "🔥 {{streak_days}} дней\n📝 {{entry_count}} всего",
           "pixel_pc": "isometric_radar_chart"
         }
       },
@@ -48,18 +49,18 @@
           "wheel": {
             "sectors": 12,
             "labels_outside": [
-              "1. ТЕЛО {{ sphere_1_score }}/10",
-              "2. ЗДОРОВЬЕ {{ sphere_2_score }}/10",
-              "3. ЭМОЦИИ {{ sphere_3_score }}/10",
-              "4. ЭНЕРГИЯ {{ sphere_4_score }}/10",
-              "5. ДЕНЬГИ {{ sphere_5_score }}/10",
-              "6. БИЗНЕС {{ sphere_6_score }}/10",
-              "7. ОТНОШЕНИЯ {{ sphere_7_score }}/10",
-              "8. СЕМЬЯ {{ sphere_8_score }}/10",
-              "9. ОКРУЖЕНИЕ {{ sphere_9_score }}/10",
-              "10. МИССИЯ {{ sphere_10_score }}/10",
-              "11. ОТДЫХ {{ sphere_11_score }}/10",
-              "12. РАЗВИТИЕ {{ sphere_12_score }}/10"
+              "1. ТЕЛО {{bod}}/10",
+              "2. ЗДОРОВЬЕ {{health}}/10",
+              "3. ЭМОЦИИ {{emo}}/10",
+              "4. ЭНЕРГИЯ {{energy}}/10",
+              "5. ДЕНЬГИ {{mon}}/10",
+              "6. БИЗНЕС {{biz}}/10",
+              "7. ОТНОШЕНИЯ {{rel}}/10",
+              "8. СЕМЬЯ {{fam}}/10",
+              "9. ОКРУЖЕНИЕ {{env}}/10",
+              "10. МИССИЯ {{mis}}/10",
+              "11. ОТДЫХ {{res}}/10",
+              "12. РАЗВИТИЕ {{dev}}/10"
             ],
             "center": "СБОРКА",
             "colors": {
@@ -68,10 +69,7 @@
               "1-4": "#FF5252"
             }
           },
-          "decorations": [
-            "pixel_mona_lisa",
-            "retro_terminal"
-          ]
+          "decorations": ["pixel_mona_lisa", "retro_terminal"]
         }
       },
       {
@@ -81,14 +79,15 @@
         "elements": {
           "title": "Текущий Статус",
           "beige_pc_screen": [
-            "❤️ Индекс Здоровья\n{{ health_index }}/10\nТело + Здоровье сред.",
-            "💰 Индекс Богатства\n{{ wealth_index }}/10\nДеньги + Бизнес сред.",
-            "⚡ Индекс Энергии\n{{ energy_index }}/10\nТекущая энергия"
+            "❤️ Индекс Здоровья\n{{health}}/10\nТело + Здоровье сред.",
+            "💰 Индекс Богатства\n{{richness}}/10\nДеньги + Бизнес сред.",
+            "⚡ Индекс Энергии\n{{energy}}/10\nТекущая энергия"
           ],
           "pixel_pc": "beige_vintage_3_windows"
         }
       }
     ],
+  
     "global_overlay": {
       "background": "#1A1A1A_concrete_texture",
       "grain": "film_grain_35-50%",
@@ -100,6 +99,7 @@
         "pixel": "8bit_pixel_font"
       }
     },
+  
     "forbidden": [
       "NO english UI labels",
       "NO latin placeholders in visible text",

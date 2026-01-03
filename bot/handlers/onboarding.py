@@ -47,11 +47,13 @@ class OnboardingHandler:
         """Start the onboarding process for a user."""
         telegram_id = update.effective_user.id
         username = update.effective_user.username
+        first_name = update.effective_user.first_name
+        last_name = update.effective_user.last_name
         
         logger.info(f"Starting onboarding for user {telegram_id} ({username})")
         
         # Get or create user
-        user = get_or_create_user(telegram_id, username)
+        user = get_or_create_user(telegram_id, username, first_name, last_name)
         
         # Reset onboarding state
         with get_session() as session:
