@@ -1,0 +1,119 @@
+{
+    "meta": {
+      "type": "Vertical Poster (1500x2800px)",
+      "style": "Brutalist Zine, Retro Newspaper, Self-Tracking Dashboard",
+      "color_mode": "Monochrome (Pure Black & White #000000/#F5F5F5)",
+      "language": "ru-RU_cyrillic_strict",
+      "texture": "Heavy paper grain (20-30%), Halftone dots, Ink bleed, Matte"
+    },
+    "layout_rules": {
+      "grid": "Strict orthogonal black grid (1-2px) dividing all sections",
+      "composition": "Asymmetrical, Top-down flat scan, No depth of field",
+      "typography_mandate": "Mix 5-7 drastically different styles (3D, Serif, Bubble, Gothic, Stencil, Handwritten) to create chaotic order"
+    },
+    "elements": [
+      {
+        "id": "header",
+        "pos": "Top Edge (10% height)",
+        "style": "Industrial Bold Sans (Black on White)",
+        "text": "АКТИВЕН\nСБОРКА  ПРОФИЛЬ  {{ current_year }}\n\nБаланс жизни Саморазвитие Продуктивность AI-трекинг",
+        "addon": "Rotated Stencil Badge: 'АКТИВЕН'"
+      },
+      {
+        "id": "hero_greeting",
+        "pos": "Top Left (overlapping portrait)",
+        "style": "Large 3D Block Letters (Hand-drawn isometric with hatching)",
+        "text": "{{ greeting | default('Привет!') }}"
+      },
+      {
+        "id": "portrait",
+        "pos": "Center Top (35% width)",
+        "style": "PlayStation 1 isometic 3d game character, Halftone Dot Pattern (Newspaper style 1-2mm dots); ",
+        "content": "{{ user_portrait_image }}"
+      },
+      {
+        "id": "contact_bubble",
+        "pos": "Top Right",
+        "style": "Paper Speech Bubble (Cloud shape, thick outline)",
+        "text": "ДНЕЙ В СИСТЕМЕ: {{ total_days_tracked }}"
+      },
+      {
+        "id": "name_intro",
+        "pos": "Below 'Привет'",
+        "style": "Heavy Serif (Cooper Black style)",
+        "text": "Меня зовут\n{{ full_name }}"
+      },
+      {
+        "id": "philosophy_strip",
+        "pos": "Middle Center",
+        "style": "Mixed Fonts: Bubble, Serif, Bold Sans, Gothic",
+        "text": "Моя философия это микс {{ philosophy_part_1 }} & {{ philosophy_part_2 }} & {{ philosophy_part_3 }}"
+      },
+      {
+        "id": "since_badge",
+        "pos": "Middle Left",
+        "style": "Condensed Sans (Tall/Narrow)",
+        "text": "Я в системе\nС {{ start_date }}\nУРОВЕНЬ {{ current_level }}"
+      },
+      {
+        "id": "agents_flow",
+        "pos": "Middle Horizontal Strip",
+        "style": "Outline Sans (Hollow)",
+        "text": "АГЕНТЫ\nШТАБ • ТЕЛО • ДЕЛО • ДУША",
+        "detail": "Dashed line connecting letters with dots"
+      },
+      {
+        "id": "divider",
+        "pos": "Horizontal Center Line",
+        "style": "Dashed cut line",
+        "content": "Left: Scissors Icon | Right: Radar/Balance Icon"
+      },
+      {
+        "id": "spheres_list",
+        "pos": "Bottom Left",
+        "style": "Sans-serif body, Handwritten title",
+        "text": "12 Сфер Жизни\nТОП-3:\n💪 Тело {{ sphere_body_score }}/10\n💰 Деньги {{ sphere_money_score }}/10\n🚀 Развитие {{ sphere_growth_score }}/10\n",
+        "note": "Use simple B&W icons instead of emojis"
+      },
+      {
+        "id": "stats_block",
+        "pos": "Bottom Center",
+        "style": "Regular Sans, Bold Numbers",
+        "text": "Статистика\nУровень {{ current_level }}\nОпыт (XP) {{ xp_points }}\nДней подряд 🔥 {{ streak_days }}\nВсего записей 📝 {{ total_notes }}"
+      },
+      {
+        "id": "skills_stickers",
+        "pos": "Bottom Center (below stats)",
+        "style": "Printed Stickers",
+        "items": [
+          "Star shape: '{{ skill_adjective_1 }}'",
+          "Arrow shape: '{{ skill_adjective_2 }}'",
+          "Circle shape: '{{ skill_adjective_3 }}'"
+        ]
+      },
+      {
+        "id": "ai_grid",
+        "pos": "Bottom Right",
+        "style": "White text on Black background (Inverted)",
+        "text": "AI АГЕНТЫ\nШТАБ {{ agent_hq_percent }}%\nТЕЛО {{ agent_body_percent }}%\nДЕЛО {{ agent_work_percent }}%\nДУША {{ agent_soul_percent }}%"
+      },
+      {
+        "id": "achievements",
+        "pos": "Bottom Right (bar)",
+        "style": "Bold Uppercase on Black",
+        "text": "НЕДАВНИЕ ДОСТИЖЕНИЯ\n«ДОСТИГ УРОВНЯ {{ current_level }}» • «СТРИК {{ streak_days }} ДНЕЙ»"
+      },
+      {
+        "id": "motto",
+        "pos": "Bottom Right Corner",
+        "style": "Decorative Serif & Sans Mix",
+        "text": "Кредо:\n{{ motto_title }}\n{{ motto_subtitle }}"
+      }
+    ],
+    "constraints": [
+      "NO colors, gradients, or drop shadows",
+      "NO English text (except 'ENGLISH' in footer)",
+      "NO rounded shapes (except specified stickers/bubbles)",
+      "Ensure grid lines are straight and encompass all text blocks"
+    ]
+  }
