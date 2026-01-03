@@ -34,7 +34,7 @@ class CommandsHandler:
         user = get_or_create_user(telegram_id, username, first_name, last_name)
         
         # Check if user needs onboarding
-        if user.is_onboarding or not user.psychotype:
+        if user.is_onboarding:
             logger.info(f"User {telegram_id} needs onboarding")
             await update.message.reply_text(
                 "Добро пожаловать! 👋\n\n"
@@ -46,18 +46,18 @@ class CommandsHandler:
             await update.message.reply_text(
                 "С возвращением! 👋\n\n"
                 "Вы уже прошли тест. Используйте /curators для выбора наставников "
-                "или /psychotype для повторного прохождения теста."
+                "или /reset_goals для повторного прохождения теста."
             )
     
-    async def psychotype_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /psychotype command - restart the personality test."""
+    async def reset_goals_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle /reset_goals command - restart the goals test."""
         telegram_id = update.effective_user.id
         
-        logger.info(f"Psychotype command from user {telegram_id}")
+        logger.info(f"Reset goals command from user {telegram_id}")
         
         await update.message.reply_text(
             "Начинаем тест заново! 🔄\n\n"
-            "Отвечайте на вопросы, выбирая наиболее подходящий вариант."
+            "Отвечайте на вопросы, отправляя текстовые сообщения."
         )
         
         await self.onboarding_handler.start_onboarding(update, context)
@@ -231,15 +231,9 @@ class CommandsHandler:
         # Generate variables using AI (using nunjucks/jinja2 template)
         template = Template(variables_template)
         variables_prompt = template.render(history=history)
-        
-        print('------------- variables_json')
-        print(variables_prompt)
 
         logger.info("Generating variables JSON from AI...")
         variables_json = await self.ai_service.generate_json_response(variables_prompt)
-
-        print('------------- variables_json')
-        print(variables_json)
         
         # Read imagePrompt.json
         image_prompt_path = content_dir / handle / "imagePrompt.json"
@@ -255,15 +249,8 @@ class CommandsHandler:
         # if user.username:
         #     variables_json['username'] = '@' + user.name
         variables_json['first_name'] = user.first_name
-        
-        print('------------- image_prompt_template_obj')
-        print(image_prompt_template_obj)
 
         image_prompt = image_prompt_template_obj.render(**variables_json)
-        
-        
-        print('------------- image_prompt')
-        print(image_prompt)
 
         # Read imageBasePrompt.txt
         image_base_prompt_path = content_dir / "imageBasePrompt.txt"
@@ -298,6 +285,6 @@ class CommandsHandler:
         logger.info(f"Help command from user {update.effective_user.id}")
         
         help_text = get_help_text()
-        await update.message.reply_text(help_text, parse_mode="Markdown")
+        await update.message.reply_text(help_text, parse_mode="HTML")
 
 

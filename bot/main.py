@@ -66,10 +66,8 @@ class SborkaBot:
 
         # Check if user is in onboarding
         if self.onboarding_handler.is_user_onboarding(telegram_id):
-            logger.info(f"User {telegram_id} is in onboarding mode, ignoring message")
-            await update.message.reply_text(
-                "Пожалуйста, сначала завершите тест личности, отвечая на вопросы выше."
-            )
+            logger.info(f"User {telegram_id} is in onboarding mode, handling as onboarding answer")
+            await self.onboarding_handler.handle_text_answer(update, context)
             return
         print('onboarding_handler', telegram_id)
         # Handle as regular chat message
@@ -99,9 +97,7 @@ class SborkaBot:
 
         logger.info(f"Received callback: {data}")
 
-        if data.startswith("onboard_"):
-            await self.onboarding_handler.handle_answer(update, context)
-        elif data.startswith("poster_"):
+        if data.startswith("poster_"):
             await self.commands_handler.handle_poster_callback(update, context)
         else:
             logger.warning(f"Unknown callback data: {data}")
@@ -149,7 +145,7 @@ class SborkaBot:
 
         # Add command handlers
         application.add_handler(CommandHandler("start", self.commands_handler.start_command))
-        application.add_handler(CommandHandler("psychotype", self.commands_handler.psychotype_command))
+        application.add_handler(CommandHandler("reset_goals", self.commands_handler.reset_goals_command))
         application.add_handler(CommandHandler("curators", self.commands_handler.curators_command))
         application.add_handler(CommandHandler("poster", self.commands_handler.poster_command))
         application.add_handler(CommandHandler("help", self.commands_handler.help_command))
