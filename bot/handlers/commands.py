@@ -8,7 +8,7 @@ from telegram.ext import ContextTypes
 from jinja2 import Template
 
 from ..database import get_session, User
-from ..utils import get_or_create_user, get_all_spheres_history
+from ..utils import get_or_create_user, get_all_spheres_history, get_help_text
 
 logger = logging.getLogger(__name__)
 
@@ -297,24 +297,7 @@ class CommandsHandler:
         """Handle /help command."""
         logger.info(f"Help command from user {update.effective_user.id}")
         
-        help_text = (
-            "🤖 *Команды бота*\n\n"
-            "/start - Начать работу с ботом\n"
-            "/psychotype - Пройти тест личности заново\n"
-            "/curators - Выбрать наставников\n"
-            "/poster - Сгенерировать постер\n"
-            "/help - Показать это сообщение\n\n"
-            "*Как использовать*\n\n"
-            "1. Пройдите тест личности\n"
-            "2. Выберите наставников для каждой сферы\n"
-            "3. Общайтесь с наставниками в соответствующих топиках:\n"
-            "   - 🎯 Штаб - общая координация\n"
-            "   - 💼 Дело - бизнес и карьера\n"
-            "   - 🧘 Душа - эмоции и внутренний мир\n"
-            "   - 💪 Тело - здоровье и физическая форма\n\n"
-            "Вы можете отправлять текстовые и голосовые сообщения (до 1 минуты)."
-        )
-        
+        help_text = get_help_text()
         await update.message.reply_text(help_text, parse_mode="Markdown")
 
 

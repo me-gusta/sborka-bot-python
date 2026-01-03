@@ -8,7 +8,7 @@ from telegram.ext import ContextTypes
 
 from ..database import get_session, User
 from ..services import AIService
-from ..utils import get_or_create_user, load_onboarding_questions, CONTENT_DIR
+from ..utils import get_or_create_user, load_onboarding_questions, get_help_text, CONTENT_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -211,6 +211,9 @@ class OnboardingHandler:
             # Trigger the curators command flow
             await self._show_curators_message(update, context)
             
+            # Send help message
+            await self._send_help_message(update, context)
+            
         except Exception as e:
             logger.error(f"Error completing onboarding: {e}", exc_info=True)
             await update.callback_query.message.reply_text(
@@ -297,6 +300,16 @@ class OnboardingHandler:
             chat_id=chat_id,
             text=message_text,
             reply_markup=keyboard
+        )
+    
+    async def _send_help_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Send help message to user."""
+        help_text = get_help_text()
+        chat_id = update.effective_chat.id
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=help_text,
+            parse_mode="Markdown"
         )
     
     def is_user_onboarding(self, telegram_id: int) -> bool:
