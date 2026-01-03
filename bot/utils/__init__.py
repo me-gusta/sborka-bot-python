@@ -6,8 +6,6 @@ from .helpers import (
     detect_sphere_from_topic,
     update_user_thread,
     get_sphere_by_thread,
-    get_all_spheres_history,
-    get_help_text,
     CONTENT_DIR
 )
 
@@ -19,8 +17,6 @@ __all__ = [
     'detect_sphere_from_topic',
     'update_user_thread',
     'get_sphere_by_thread',
-    'get_all_spheres_history',
-    'get_help_text',
     'CONTENT_DIR'
 ]
 
